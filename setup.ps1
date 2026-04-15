@@ -54,9 +54,15 @@ Write-Host "[OK] Scripts copied to $ClaudeDir" -ForegroundColor Green
 # Update settings.json
 if (Test-Path $SettingsFile) {
     $settings = Get-Content $SettingsFile -Raw | ConvertFrom-Json
-    $settings.statusLine = @{
+    $statusLineValue = [PSCustomObject]@{
         type    = "command"
         command = $Command
+    }
+    if ($settings.PSObject.Properties.Name -contains "statusLine") {
+        $settings.statusLine = $statusLineValue
+    }
+    else {
+        $settings | Add-Member -NotePropertyName "statusLine" -NotePropertyValue $statusLineValue -Force
     }
     $settings | ConvertTo-Json -Depth 10 | Set-Content $SettingsFile -Encoding UTF8
     Write-Host "[OK] settings.json updated" -ForegroundColor Green
